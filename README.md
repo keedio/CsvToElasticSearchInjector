@@ -1,3 +1,3 @@
 ## Description
-Keedio's CsvToElasticSearchInyecto is a simple Flink job to 
-inyecta data into elasticsearch from common source csv of regular files.
+Keedio's CsvToElasticSearchInyector is a simple Flink job to 
+inyect data into elasticsearch from common source csv of regular files.
