@@ -1,0 +1,20 @@
+# Copy this file to the root of your new project and rename it to '.gitignore'
+*.sw?
+.#*
+*#
+*~
+.classpath
+.project
+.settings
+bin
+build
+target
+dependency-reduced-pom.xml
+*.sublime-*
+/scratch
+.gradle
+*.iml
+.idea
+.gitignore
+Would skip repository CsvToElasticSearchInyector/
+
