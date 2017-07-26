@@ -5,7 +5,6 @@ package com.keedio.kds.flink
 import com.keedio.kds.flink.config.FlinkProperties
 import com.keedio.kds.flink.models.Assessment
 import org.apache.flink.api.common.functions.RuntimeContext
-import org.apache.flink.streaming.api.datastream.DataStreamSink
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.connectors.elasticsearch._
 import org.apache.log4j.Logger
@@ -42,8 +41,6 @@ object CsvToElasticSearchInyector {
     dataStreamAssessment.map(e => println(e))
 
 
-
-
     //sink
     val config = new java.util.HashMap[String, String]
     config.put("cluster.name", "KDS_Seman")
@@ -54,8 +51,9 @@ object CsvToElasticSearchInyector {
     transportAddresses.add(new InetSocketTransportAddress("ambari2.ambari.keedio.org", 9300))
     transportAddresses.add(new InetSocketTransportAddress("ambari3.ambari.keedio.org", 9300))
 
-    val a: DataStreamSink[Assessment] = dataStreamAssessment
+    dataStreamAssessment
       .addSink(new ElasticsearchSink[Assessment](config, transportAddresses, new ElasticsearchSinkFunction[Assessment] {
+
         def createIndexRequest(element: Assessment): IndexRequest = {
           val json = new java.util.HashMap[String, String]
           json.put("comment", element.comment)
