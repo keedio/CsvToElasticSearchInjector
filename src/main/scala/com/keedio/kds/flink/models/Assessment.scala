@@ -1,5 +1,8 @@
 package com.keedio.kds.flink.models
 
+import java.io.StringReader
+
+import com.opencsv.CSVReader
 import org.apache.log4j.Logger
 
 /**
@@ -32,11 +35,25 @@ object Assessment extends Serializable {
 
   val LOG = Logger.getLogger(classOf[Assessment])
 
-  def apply(s: String): Assessment = {
-    s.startsWith("\"") match {
-      case true => new Assessment(s.split("\",", -1)(0).replace("\"", "") +: s.split("\",", -1)(1).split(",", -1)
-        .toSeq: _*)
-      case false => new Assessment(s.split(",", -1): _*)
+  /**
+    * Parse a string via CSVReader. The result is a reader that will be the argument for building
+    * an Assessment instance.
+    * If the number of fields produced by CSVReader is different from the number of args for
+    * building an Assessment, the string parsed is no valid and error will be logged.
+    * CSVReader may throw IOException if any other staff happens when trying to parse.
+    * Apply returns an Either object, with Left as valid Assessments and Right as Unit.
+    * @param s
+    * @param separator
+    * @param quotechar
+    * @return
+    */
+  def apply(s   : String, separator: Char = ',', quotechar: Char = '"'): Either[Assessment, Unit] = {
+    val reader = new CSVReader(new StringReader(s), separator, quotechar)
+    val parsedFields: Array[String] = reader.readNext()
+    parsedFields.size == classOf[Assessment].getDeclaredConstructors()(0).getParameterCount match {
+      case true => Left(new Assessment(parsedFields: _*))
+      case false => Right(LOG.error("String: " + "\"" + s + "\"" + " with " + parsedFields.size +
+        " fields" + " cannot be parsed to " + this.getClass.getName + " object"))
     }
   }
 
