@@ -1,5 +1,8 @@
 package com.keedio.kds.flink.models
 
+import java.io.StringReader
+
+import com.opencsv.CSVReader
 import org.apache.log4j.Logger
 
 /**
@@ -32,11 +35,12 @@ object Assessment extends Serializable {
 
   val LOG = Logger.getLogger(classOf[Assessment])
 
-  def apply(s: String): Assessment = {
-    s.startsWith("\"") match {
-      case true => new Assessment(s.split("\",", -1)(0).replace("\"", "") +: s.split("\",", -1)(1).split(",", -1)
-        .toSeq: _*)
-      case false => new Assessment(s.split(",", -1): _*)
+  def apply(s   : String, separator: Char = ',', quotechar: Char = '"'): Either[Assessment, Unit] = {
+    val reader = new CSVReader(new StringReader(s), separator, quotechar)
+    val parsedFields: Array[String] = reader.readNext()
+    parsedFields.size == 8 match {
+      case true => Left(new Assessment(parsedFields: _*))
+      case false => Right(LOG.error("String: " + s + " " + " cannot be parsed to Assessment object"))
     }
   }
 

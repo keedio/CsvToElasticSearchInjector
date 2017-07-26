@@ -21,6 +21,12 @@ class FlinkProperties(args: Array[String]) extends Serializable {
     lazy val PATHTOCSVINPUT = InyectorHelper.getValueFromProperties(parameterToolCli, "input.csv",
       InyectorHelper.getValueFromProperties(parameterToolFromFile, "input.csv", ""))
 
+    lazy val SEPARATOR = InyectorHelper.getValueFromProperties(parameterToolCli, "field.separator",
+      InyectorHelper.getValueFromProperties(parameterToolFromFile, "field.separator", ",")).asInstanceOf[Char]
+
+    lazy val QUOTECHAR = InyectorHelper.getValueFromProperties(parameterToolCli, "field.quoter",
+      InyectorHelper.getValueFromProperties(parameterToolFromFile, "field.quoter", ",")).asInstanceOf[Char]
+
 
     //properties form cli will override properties from file. Elemenst from right operand owerwrite elemenst of
     //left one
