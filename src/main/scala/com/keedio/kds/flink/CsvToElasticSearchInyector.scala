@@ -5,6 +5,7 @@ import java.util
 import com.keedio.kds.flink.config.FlinkProperties
 import com.keedio.kds.flink.models.Assessment
 import org.apache.flink.api.common.functions.RuntimeContext
+import org.apache.flink.streaming.api.datastream.DataStreamSink
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.connectors.elasticsearch.{ElasticsearchSink, ElasticsearchSinkFunction, RequestIndexer}
 import org.apache.log4j.Logger
@@ -41,19 +42,27 @@ object CsvToElasticSearchInyector {
     // This instructs the sink to emit after every element, otherwise they would be buffered
     config.put("bulk.flush.max.actions", "1")
     val transportAddresses = new util.ArrayList[TransportAddress]()
-    transportAddresses.add(new InetSocketTransportAddress("ambari1.ambari.keedio.org", 9200))
-    transportAddresses.add(new InetSocketTransportAddress("ambari2.ambari.keedio.org", 9200))
-    transportAddresses.add(new InetSocketTransportAddress("ambari3.ambari.keedio.org", 9200))
+    transportAddresses.add(new InetSocketTransportAddress("ambari1.ambari.keedio.org", 9300))
+    transportAddresses.add(new InetSocketTransportAddress("ambari2.ambari.keedio.org", 9300))
+    transportAddresses.add(new InetSocketTransportAddress("ambari3.ambari.keedio.org", 9300))
 
-    dataStreamAssesment
+    val a: DataStreamSink[Assessment] = dataStreamAssesment
       .addSink(new ElasticsearchSink[Assessment](config, transportAddresses, new ElasticsearchSinkFunction[Assessment] {
         def createIndexRequest(element: Assessment): IndexRequest = {
-          val json = new util.HashMap[String, Assessment]
-          json.put("data", element)
+          val json = new util.HashMap[String, String]
+          json.put("comment", element.comment)
+          json.put("customerSupport", element.customerSupport)
+          json.put("food", element.food)
+          json.put("place", element.place)
+          json.put("customerSupport", element.customerSupport)
+          json.put("price", element.price)
+          json.put("sanitation", element.sanitation)
+          json.put("otherStaff", element.otherStaff)
+
 
           return Requests.indexRequest()
-            .index("my-index")
-            .`type`("my-type")
+            .index("assessments")
+            .`type`("assessment")
             .source(json)
         }
 
