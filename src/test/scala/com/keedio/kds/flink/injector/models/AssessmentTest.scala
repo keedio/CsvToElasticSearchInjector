@@ -1,4 +1,4 @@
-package com.keedio.kds.flink.models
+package com.keedio.kds.flink.injector.models
 
 import org.junit.{Assert, Test}
 
@@ -7,7 +7,7 @@ import org.junit.{Assert, Test}
   * lalazaro@keedio.com
   * Keedio
   */
-class AssessmentTest {
+private[models] class AssessmentTest {
 
   @Test
   def parseStringAsAssessmentTest() = {

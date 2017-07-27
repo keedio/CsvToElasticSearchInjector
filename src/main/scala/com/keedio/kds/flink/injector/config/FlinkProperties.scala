@@ -1,7 +1,8 @@
-package com.keedio.kds.flink.config
+package com.keedio.kds.flink.injector.config
 
-import com.keedio.kds.flink.utils.InyectorHelper
+import com.keedio.kds.flink.injector.utils.InyectorHelper
 import org.apache.flink.api.java.utils.ParameterTool
+
 import scala.collection.JavaConverters._
 /**
   * Created by luislazaro on 17/5/17.
@@ -16,8 +17,6 @@ class FlinkProperties(args: Array[String]) extends Serializable {
     case false => parameterToolCli
   }
 
-
-  object FlinkProperties extends Serializable {
     lazy val PATHTOCSVINPUT = InyectorHelper.getValueFromProperties(parameterToolCli, "input.csv",
       InyectorHelper.getValueFromProperties(parameterToolFromFile, "input.csv", ""))
 
@@ -33,6 +32,5 @@ class FlinkProperties(args: Array[String]) extends Serializable {
     lazy val mapOfParameters = parameterToolFromFile.getProperties.asScala.toSeq.toMap ++
       parameterToolCli.getProperties.asScala.toSeq.toMap
     lazy val parameterTool = ParameterTool.fromMap(mapOfParameters.asJava)
-  }
 
-}
+   }

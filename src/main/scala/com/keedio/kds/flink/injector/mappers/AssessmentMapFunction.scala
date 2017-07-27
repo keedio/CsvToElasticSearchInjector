@@ -1,8 +1,9 @@
-package com.keedio.kds.flink.mappers
+package com.keedio.kds.flink.injector.mappers
 
 import java.io.StringReader
 
-import com.keedio.kds.flink.models.Assessment
+
+import com.keedio.kds.flink.injector.models.Assessment
 import com.opencsv.CSVReader
 import org.apache.flink.api.common.functions.RichMapFunction
 import org.apache.flink.configuration.Configuration

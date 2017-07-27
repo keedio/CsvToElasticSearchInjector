@@ -1,4 +1,4 @@
-package com.keedio.kds.flink.models
+package com.keedio.kds.flink.injector.models
 
 import java.io.StringReader
 

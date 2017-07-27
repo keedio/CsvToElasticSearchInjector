@@ -1,5 +1,4 @@
-package com.keedio.kds.flink.utils
-
+package com.keedio.kds.flink.injector.utils
 
 import org.apache.flink.api.java.utils.ParameterTool
 
