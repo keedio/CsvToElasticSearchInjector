@@ -12,12 +12,12 @@ import org.apache.log4j.Logger
   */
 class Assessment(
                   val comment: String,
-                  val generalFeeling: String,
+                  val overallImpression: String,
                   val food: String,
                   val place: String,
                   val customerSupport: String,
                   val price: String,
-                  val sanitation: String,
+                  val hygiene: String,
                   val otherStaff: String
                 ) {
 
@@ -27,7 +27,7 @@ class Assessment(
 
   override def toString = {
     new String(
-      s"""$comment,$generalFeeling,$food,$place,$customerSupport,$price,$sanitation,$otherStaff""")
+      s"""$comment,$overallImpression,$food,$place,$customerSupport,$price,$hygiene,$otherStaff""")
   }
 }
 

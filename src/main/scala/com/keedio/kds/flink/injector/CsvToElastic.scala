@@ -54,21 +54,18 @@ object CsvToElastic {
       case true => LOG.debug("Added transportAddresses from properties")
       case false => LOG.error("Cannot add transportAddress from properties")
     }
-//    transportAddresses.add(new InetSocketTransportAddress("ambari1.ambari.keedio.org", 9300))
-//    transportAddresses.add(new InetSocketTransportAddress("ambari2.ambari.keedio.org", 9300))
-//    transportAddresses.add(new InetSocketTransportAddress("ambari3.ambari.keedio.org", 9300))
 
     dataStreamAssessment.addSink(new ElasticsearchSink[Assessment](config, transportAddresses, new
         ElasticsearchSinkFunction[Assessment] {
       def createIndexRequest(element: Assessment): IndexRequest = {
         val json = new java.util.HashMap[String, String]
         json.put("comment", element.comment)
-        json.put("customerSupport", element.customerSupport)
+        json.put("overallImpression", element.overallImpression)
         json.put("food", element.food)
         json.put("place", element.place)
         json.put("customerSupport", element.customerSupport)
         json.put("price", element.price)
-        json.put("sanitation", element.sanitation)
+        json.put("hygiene", element.hygiene)
         json.put("otherStaff", element.otherStaff)
 
         return Requests.indexRequest()
