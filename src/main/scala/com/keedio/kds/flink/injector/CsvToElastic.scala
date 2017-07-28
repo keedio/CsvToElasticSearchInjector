@@ -20,12 +20,13 @@ class CsvToElastic
 object CsvToElastic {
 
   def main(args: Array[String]): Unit = {
-    val LOG = Logger.getLogger(classOf[CsvToElastic])
+
     lazy val properties = new FlinkProperties(args)
     inject(properties)
   }
 
   def inject(properties: FlinkProperties) = {
+    val LOG = Logger.getLogger(classOf[CsvToElastic])
 
     //use of streaming environment
     val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
@@ -48,9 +49,14 @@ object CsvToElastic {
     // This instructs the sink to emit after every element, otherwise they would be buffered
     config.put("bulk.flush.max.actions", "1")
     val transportAddresses = new java.util.ArrayList[TransportAddress]()
-    transportAddresses.add(new InetSocketTransportAddress("ambari1.ambari.keedio.org", 9300))
-    transportAddresses.add(new InetSocketTransportAddress("ambari2.ambari.keedio.org", 9300))
-    transportAddresses.add(new InetSocketTransportAddress("ambari3.ambari.keedio.org", 9300))
+    val listOfAddresess: Array[InetSocketTransportAddress] = properties.INET_TRANSPORT_ADDRESSES
+    transportAddresses.addAll(java.util.Arrays.asList(listOfAddresess: _*)) match {
+      case true => LOG.debug("Added transportAddresses from properties")
+      case false => LOG.error("Cannot add transportAddress from properties")
+    }
+//    transportAddresses.add(new InetSocketTransportAddress("ambari1.ambari.keedio.org", 9300))
+//    transportAddresses.add(new InetSocketTransportAddress("ambari2.ambari.keedio.org", 9300))
+//    transportAddresses.add(new InetSocketTransportAddress("ambari3.ambari.keedio.org", 9300))
 
     dataStreamAssessment.addSink(new ElasticsearchSink[Assessment](config, transportAddresses, new
         ElasticsearchSinkFunction[Assessment] {

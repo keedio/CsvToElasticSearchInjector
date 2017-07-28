@@ -15,11 +15,22 @@ private[injector] class CsvToElasticTest {
       "--input.csv",  "./src/test/resources/kdsMexicanFood.csv",
       "--cluster.name", "KDS_Seman",
       "--index.name", "assessments",
-      "--type.name", "assessment")
+      "--type.name", "assessment",
+      "--inet.addresses.rpc", "ambari1.ambari.keedio.org, 9300; ambari2.ambari.keedio.org, 9300; ambari3.ambari.keedio.org, 9300"
+    )
 
     val properties = new FlinkProperties(args)
     CsvToElastic.inject(properties)
     println
    }
+
+  @Test
+  def executeInjectorFromPropertiesFile() = {
+    val args = Array("--properties.file", "./src/test/resources/flinkjob_injector.properties")
+    val properties = new FlinkProperties(args)
+    CsvToElastic.inject(properties)
+    println
+
+  }
 
 }
