@@ -3,7 +3,7 @@ Keedio's CsvToElasticSearchInjector is a simple Flink job to
 inject data into elasticsearch from a common source csv of regular files.
 
 ## Main goal
-Read csv file via streaming api, parse as pojo assesment and inject into Elasticsearch.
+Read csv file via streaming api, parse as pojo 'Assesment' and inject into Elasticsearch.
  
 ## Available properties
 |   property	|   default value	|   mandatory	|   Description and example	|   connector	|
