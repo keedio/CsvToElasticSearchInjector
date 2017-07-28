@@ -27,60 +27,58 @@ object CsvToElastic {
 
   def inject(properties: FlinkProperties) = {
 
-      //use of streaming environment
-      val envStreaming: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
-      envStreaming.setParallelism(1)
-      //source
-      val dataStreaming: DataStream[String] = envStreaming.readTextFile(properties.PATHTOCSVINPUT)
+    //use of streaming environment
+    val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
+    env.setParallelism(1)
+    //source
+    val dataStreaming: DataStream[String] = env.readTextFile(properties.PATHTOCSVINPUT)
+      .name("source readtextFile: " + properties.PATHTOCSVINPUT)
 
-      //transf
-      val dataStreamAssessmentDual: DataStream[Either[Assessment, Unit]] = dataStreaming.map(Assessment(_))
-      val dataStreamAssessment: DataStream[Assessment] = dataStreamAssessmentDual
-        .filter(_.isLeft)
-        .map(e => e.left.toOption.get)
-      dataStreamAssessment.map(e => println(e))
+    //transf
+    val dataStreamAssessmentDual: DataStream[Either[Assessment, Unit]] = dataStreaming.map(Assessment(_))
+      .name("map: parse string to assessment")
+    val dataStreamAssessment: DataStream[Assessment] = dataStreamAssessmentDual
+      .filter(_.isLeft).name("filter: valid assessments")
+      .map(e => e.left.toOption.get).name("map: get assessments")
+      .disableChaining()
 
+    //sink
+    val config = new java.util.HashMap[String, String]
+    config.put("cluster.name", properties.ELASTIC_CLUSTERNAME)
+    // This instructs the sink to emit after every element, otherwise they would be buffered
+    config.put("bulk.flush.max.actions", "1")
+    val transportAddresses = new java.util.ArrayList[TransportAddress]()
+    transportAddresses.add(new InetSocketTransportAddress("ambari1.ambari.keedio.org", 9300))
+    transportAddresses.add(new InetSocketTransportAddress("ambari2.ambari.keedio.org", 9300))
+    transportAddresses.add(new InetSocketTransportAddress("ambari3.ambari.keedio.org", 9300))
 
-      //sink
-      val config = new java.util.HashMap[String, String]
-      config.put("cluster.name", "KDS_Seman")
-      // This instructs the sink to emit after every element, otherwise they would be buffered
-      config.put("bulk.flush.max.actions", "1")
-      val transportAddresses = new java.util.ArrayList[TransportAddress]()
-      transportAddresses.add(new InetSocketTransportAddress("ambari1.ambari.keedio.org", 9300))
-      transportAddresses.add(new InetSocketTransportAddress("ambari2.ambari.keedio.org", 9300))
-      transportAddresses.add(new InetSocketTransportAddress("ambari3.ambari.keedio.org", 9300))
+    dataStreamAssessment.addSink(new ElasticsearchSink[Assessment](config, transportAddresses, new
+        ElasticsearchSinkFunction[Assessment] {
+      def createIndexRequest(element: Assessment): IndexRequest = {
+        val json = new java.util.HashMap[String, String]
+        json.put("comment", element.comment)
+        json.put("customerSupport", element.customerSupport)
+        json.put("food", element.food)
+        json.put("place", element.place)
+        json.put("customerSupport", element.customerSupport)
+        json.put("price", element.price)
+        json.put("sanitation", element.sanitation)
+        json.put("otherStaff", element.otherStaff)
 
-      dataStreamAssessment
-        .addSink(new ElasticsearchSink[Assessment](config, transportAddresses, new
-            ElasticsearchSinkFunction[Assessment] {
+        return Requests.indexRequest()
+          .index(properties.INDEX_NAME)
+          .`type`(properties.TYPE_NAME)
+          .source(json)
+      }
 
-          def createIndexRequest(element: Assessment): IndexRequest = {
-            val json = new java.util.HashMap[String, String]
-            json.put("comment", element.comment)
-            json.put("customerSupport", element.customerSupport)
-            json.put("food", element.food)
-            json.put("place", element.place)
-            json.put("customerSupport", element.customerSupport)
-            json.put("price", element.price)
-            json.put("sanitation", element.sanitation)
-            json.put("otherStaff", element.otherStaff)
+      override def process(t: Assessment, runtimeContext: RuntimeContext, requestIndexer: RequestIndexer): Unit = {
+        requestIndexer.add(createIndexRequest(t))
+      }
+    })).name("sink: ElasticSearch " + properties.ELASTIC_CLUSTERNAME)
 
+    env.execute("Csv To ElasticSearch Injector")
 
-            return Requests.indexRequest()
-              .index("assessments")
-              .`type`("assessment")
-              .source(json)
-          }
-
-          override def process(t: Assessment, runtimeContext: RuntimeContext, requestIndexer: RequestIndexer): Unit = {
-            requestIndexer.add(createIndexRequest(t))
-          }
-        }))
-
-      //execute streaming environment
-      envStreaming.execute()
-    }
   }
+}
 
 

@@ -50,7 +50,7 @@ object Assessment extends Serializable {
   def apply(s   : String, separator: Char = ',', quotechar: Char = '"'): Either[Assessment, Unit] = {
     val reader = new CSVReader(new StringReader(s), separator, quotechar)
     val parsedFields: Array[String] = reader.readNext()
-    parsedFields.size == classOf[Assessment].getDeclaredConstructors()(0).getParameterCount match {
+    parsedFields.size == 8 match {
       case true => Left(new Assessment(parsedFields: _*))
       case false => Right(LOG.error("String: " + "\"" + s + "\"" + " with " + parsedFields.size +
         " fields" + " cannot be parsed to " + this.getClass.getName + " object"))
