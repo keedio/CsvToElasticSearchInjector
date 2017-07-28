@@ -36,7 +36,7 @@ object CsvToElastic {
 
     //transf
     val dataStreamAssessmentDual: DataStream[Either[Assessment, Unit]] = dataStreaming.map(Assessment(_))
-      .name("map: parse string to assessment")
+      .name("map: parse string to assessment").disableChaining()
     val dataStreamAssessment: DataStream[Assessment] = dataStreamAssessmentDual
       .filter(_.isLeft).name("filter: valid assessments")
       .map(e => e.left.toOption.get).name("map: get assessments")
