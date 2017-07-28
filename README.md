@@ -19,4 +19,4 @@ Read csv file via streaming api, parse as pojo 'Assesment' and inject into Elast
 ##Yarn
 `./bin/flink run -m yarn-cluster -yn 1 -yjm 1024 -ytm 1024
   -c com.keedio.kds.flink.injector.CsvToElastic examples/CsvToElasticSearchInjector-0.0.2-SNAPSHOT.jar
-  --properties.file flinkJob_injector.properties
+  --properties.file flinkJob_injector.properties`
